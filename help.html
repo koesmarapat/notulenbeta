@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan & FAQ | E-Notulen RSUD dr. R. Koesma</title>
+    
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/srpcom/enotulen/refs/heads/main/new%20logo%20rsud%202025%20kecil.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Marked.js untuk parsing Markdown dari AI -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'chat-pop': 'chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        chatPop: { '0%': { opacity: '0', transform: 'scale(0.9) translateY(20px)' }, '100%': { opacity: '1', transform: 'scale(1) translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* TEMA UTAMA: BLUE NAVY GRADIENT */
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #172554 100%); 
+            background-attachment: fixed;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-header {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1); /* Transparan Putih */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        /* FAQ Accordion Styles */
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+        }
+        .faq-item.active .faq-content {
+            max-height: 500px; /* Cukup tinggi untuk konten text */
+        }
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Scrollbar Halus */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        
+        /* Chat UI Markdown Styles */
+        .ai-message-content p { margin-bottom: 0.5rem; }
+        .ai-message-content p:last-child { margin-bottom: 0; }
+        .ai-message-content ul, .ai-message-content ol { margin-left: 1.2rem; margin-bottom: 0.5rem; list-style-type: disc; }
+        .ai-message-content li { margin-bottom: 0.25rem; }
+        .ai-message-content strong { color: #1e293b; font-weight: 700; }
+        
+        /* Loading Dots */
+        .typing-dot {
+            width: 6px; height: 6px; background-color: #94a3b8; border-radius: 50%;
+            display: inline-block; animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative">
+
+    <!-- NAVBAR -->
+    <header class="glass-header h-20 fixed top-0 w-full z-40 flex items-center justify-between px-6 lg:px-12 transition-all duration-300">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20 shadow-inner">
+                <img src="https://raw.githubusercontent.com/srpcom/enotulen/refs/heads/main/new%20logo%20rsud%202025%20kecil.png" class="w-6 h-6 object-contain">
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white hidden md:block">Panduan & FAQ</h1>
+                <h1 class="text-xl font-bold tracking-tight text-white md:hidden">Bantuan</h1>
+                <p class="text-[10px] text-blue-200 font-medium uppercase tracking-widest">E-Notulen Pro v7.19</p>
+            </div>
+        </div>
+        <!-- Tombol Kembali ke Beranda -->
+        <a href="index.html" class="group flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition text-sm font-medium text-blue-100 hover:text-white">
+            <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition transform duration-300"></i>
+            <span>Kembali</span>
+        </a>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="pt-32 pb-12 px-6 lg:px-12 text-center max-w-5xl mx-auto animate-fade-in">
+        <h2 class="text-3xl md:text-5xl font-extrabold mb-6 leading-tight">
+            Pelajari Cara Kerja <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-300">Sistem E-Notulen</span>
+        </h2>
+        
+        <div class="mb-8 max-w-3xl mx-auto bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl shadow-xl">
+            <p class="text-lg font-medium text-blue-100/90 leading-relaxed">
+                <strong class="text-cyan-300">E-Notulen</strong> adalah sistem digital terintegrasi di RSUD dr. R. Koesma Tuban yang dirancang untuk mempermudah pengelolaan rapat secara <em>paperless</em>. Mulai dari penjadwalan, absensi digital dengan tanda tangan, hingga pembuatan laporan notulen resmi secara otomatis.
+            </p>
+        </div>
+
+        <!-- TOMBOL MIND MAP -->
+        <div class="mb-10 flex justify-center">
+            <a href="mindmap.html" class="group flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 transition transform border border-white/10">
+                <i class="fa-solid fa-sitemap text-lg"></i>
+                <span class="tracking-wide">Lihat Mind Map Alur Sistem</span>
+                <i class="fa-solid fa-arrow-right ml-1 opacity-70 group-hover:translate-x-1 transition"></i>
+            </a>
+        </div>
+
+        <p class="text-blue-200/70 text-sm font-light uppercase tracking-widest mb-2 animate-bounce-slow">
+            Scroll ke bawah untuk video & fitur
+        </p>
+        <i class="fa-solid fa-chevron-down text-blue-300/50"></i>
+    </section>
+
+    <!-- FEATURE GRID (UPDATED: SMALLER CARDS) -->
+    <main class="px-4 lg:px-12 pb-12 max-w-7xl mx-auto w-full border-b border-white/10 mb-12">
+        <!-- Grid diubah: mobile 2 kolom, desktop 4 kolom, gap lebih kecil -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+            <!-- CARD 1: LOGIN -->
+            <div onclick="openModal('modal-login')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-right-to-bracket text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Login & Akses</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">Cara masuk via akun Google & dashboard.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-blue-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+
+            <!-- CARD 2: JADWAL -->
+            <div onclick="openModal('modal-jadwal')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-calendar-plus text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Buat Jadwal</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">Undangan baru & folder otomatis.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-emerald-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+
+            <!-- CARD 3: ABSENSI -->
+            <div onclick="openModal('modal-absensi')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.3s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-qrcode text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-indigo-600 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Absensi Digital</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">QR Code & Tanda tangan digital.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-indigo-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+
+            <!-- CARD 4: NOTULEN -->
+            <div onclick="openModal('modal-notulen')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.4s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-pen-nib text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Tulis Notulen</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">Matriks masalah & dokumentasi.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-orange-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+
+            <!-- CARD 5: OUTPUT -->
+            <div onclick="openModal('modal-output')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.5s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-print text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-cyan-500/30">
+                    <i class="fa-solid fa-file-export"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Laporan & Output</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">Generate Doc, Excel & Link.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-cyan-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+
+            <!-- CARD 6: ADMIN -->
+            <div onclick="openModal('modal-admin')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.6s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-user-shield text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-slate-500/30">
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Panel Admin</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">Manajemen user & akses.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-slate-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+            
+            <!-- CARD 7: RIWAYAT KEHADIRAN -->
+            <div onclick="openModal('modal-history')" class="glass-card rounded-2xl p-4 cursor-pointer relative overflow-hidden group animate-slide-up" style="animation-delay: 0.7s;">
+                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-125 duration-500">
+                    <i class="fa-solid fa-clock-rotate-left text-5xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center text-white text-lg mb-3 shadow-lg shadow-rose-500/30">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <h3 class="text-base font-bold mb-1 text-white leading-tight">Riwayat</h3>
+                <p class="text-[10px] text-blue-100/70 leading-snug">Arsip notulen & materi Anda.</p>
+                <div class="mt-3 flex items-center text-[10px] font-bold text-rose-300 uppercase tracking-wider group-hover:text-white transition">
+                    Detail <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- VIDEO TUTORIAL SECTION -->
+    <section class="px-6 lg:px-12 pb-16 max-w-7xl mx-auto w-full animate-slide-up" style="animation-delay: 0.2s;">
+        <div class="text-center mb-8">
+            <span class="text-red-300 font-bold tracking-widest text-xs uppercase bg-white/10 px-3 py-1 rounded-full border border-red-500/30"><i class="fa-brands fa-youtube mr-2"></i>Video Tutorial</span>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mt-4">Simak Panduan Visual</h2>
+            <p class="text-blue-100/70 mt-2">Tonton video berikut untuk memahami cara penggunaan aplikasi secara menyeluruh.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- VIDEO 1 -->
+            <div class="glass-card rounded-3xl p-3 md:p-6 overflow-hidden shadow-2xl shadow-blue-900/50 relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-600 opacity-20 blur group-hover:opacity-40 transition duration-1000"></div>
+                <h3 class="text-lg font-bold text-white mb-3 pl-1 flex items-center gap-2">
+                    <span class="bg-blue-600 text-xs px-2 py-0.5 rounded text-white">Part 1</span>
+                    Panduan Dasar
+                </h3>
+                <div class="relative w-full pb-[56.25%] h-0 rounded-2xl overflow-hidden border border-white/20 bg-black/50">
+                    <iframe 
+                        class="absolute top-0 left-0 w-full h-full z-10"
+                        src="https://www.youtube.com/embed/tq-lU-GIq4A?rel=0" 
+                        title="Tutorial E-Notulen Part 1" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="https://youtu.be/tq-lU-GIq4A" target="_blank" class="inline-flex items-center gap-2 text-xs font-medium text-blue-300 hover:text-white transition">
+                        <i class="fa-solid fa-external-link-alt"></i> Tonton Part 1 di YouTube
+                    </a>
+                </div>
+            </div>
+
+            <!-- VIDEO 2 (BARU) -->
+            <div class="glass-card rounded-3xl p-3 md:p-6 overflow-hidden shadow-2xl shadow-blue-900/50 relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-pink-400 to-purple-600 opacity-20 blur group-hover:opacity-40 transition duration-1000"></div>
+                <h3 class="text-lg font-bold text-white mb-3 pl-1 flex items-center gap-2">
+                    <span class="bg-purple-600 text-xs px-2 py-0.5 rounded text-white">Part 2</span>
+                    Update Terbaru
+                </h3>
+                <div class="relative w-full pb-[56.25%] h-0 rounded-2xl overflow-hidden border border-white/20 bg-black/50">
+                    <iframe 
+                        class="absolute top-0 left-0 w-full h-full z-10"
+                        src="https://www.youtube.com/embed/M2cym2Df6bU?rel=0" 
+                        title="Tutorial E-Notulen Part 2" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="https://youtu.be/M2cym2Df6bU?si=TT1tMZntE_gzJIsV" target="_blank" class="inline-flex items-center gap-2 text-xs font-medium text-purple-300 hover:text-white transition">
+                        <i class="fa-solid fa-external-link-alt"></i> Tonton Part 2 di YouTube
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="px-6 lg:px-12 pb-20 max-w-4xl mx-auto w-full animate-slide-up">
+        <div class="text-center mb-10">
+            <span class="text-cyan-300 font-bold tracking-widest text-xs uppercase bg-white/10 px-3 py-1 rounded-full">Tanya Jawab</span>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mt-4">Frequently Asked Questions</h2>
+            <p class="text-blue-100/70 mt-2">Jawaban atas pertanyaan yang sering diajukan pengguna.</p>
+        </div>
+
+        <div class="space-y-4">
+            
+            <!-- FAQ 1 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">1. Bagaimana alur singkat penggunaan aplikasi E-Notulen ini?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <div class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        <p class="mb-2">Secara garis besar, siklus penggunaan aplikasi terdiri dari 4 tahapan utama:</p>
+                        <ul class="list-decimal list-inside space-y-2 ml-1">
+                            <li><strong>Buat Jadwal:</strong> Notulis mendaftarkan rapat baru untuk mendapatkan Link Absensi & QR Code.</li>
+                            <li><strong>Pelaksanaan & Absensi:</strong> Saat rapat berlangsung, peserta melakukan absensi digital (QR/Link).</li>
+                            <li><strong>Pencatatan:</strong> Notulis mencatat poin pembahasan pada menu "Tulis Notulen" (Matriks Masalah & Dokumentasi).</li>
+                            <li><strong>Finalisasi:</strong> Notulis melakukan <strong>Generate Laporan Resmi</strong> (Doc) dan dapat mengunduh <strong>Daftar Hadir</strong> (Excel) pada menu "Arsip Notulen". Notula dapat  didistribusikan ke seluruh peserta rapat.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 2 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">2. Siapa saja yang dapat memanfaatkan aplikasi E-Notulen ini?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Aplikasi E-Notulen dirancang secara inklusif untuk seluruh <strong>Civitas Hospitalia RSUD dr. R. Koesma Tuban</strong>. Sistem ini dapat digunakan oleh jajaran Direksi, Manajemen, Kepala Instalasi/Ruangan, Komite Medis/Keperawatan, hingga staf administrasi unit untuk keperluan pengelolaan rapat dinas, diskusi klinis, maupun pertemuan internal unit kerja guna mendukung budaya kerja <em>paperless</em> dan tertib administrasi.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 3 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">3. Dimana file notulen dan dokumentasi tersimpan?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Sistem E-Notulen menerapkan prinsip <em>One Meeting One Folder</em>. Saat Anda membuat jadwal rapat, sistem otomatis membuat folder di Google Drive dengan format nama <code>YYYY-MM-DD [Nama Agenda]</code>. Semua file (undangan, foto, excel, doc) akan tersimpan rapi di sana.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 4 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">4. Bisakah saya mengedit notulen yang sudah disimpan?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Ya, bisa. Klik tombol <strong>Edit</strong> pada daftar arsip notulen. Anda bisa mengubah agenda, tanggal, hingga menambah dokumentasi. Namun, jika Anda sudah men-generate Laporan Resmi (Doc), disarankan untuk men-generate ulang setelah melakukan pengeditan data agar isinya sinkron.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 5 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">5. Bagaimana cara menghapus data rapat yang salah?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Untuk keamanan data, tombol Hapus (ikon sampah merah) <strong>hanya muncul untuk akun dengan role ADMIN</strong>. Jika Anda adalah USER biasa dan perlu menghapus data, silakan lapor ke Bagian Administrasi untuk dibantu penghapusan.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 6 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">6. Apakah Absensi wajib menggunakan tanda tangan digital?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Ya, tanda tangan digital diperlukan untuk validitas kehadiran. Peserta cukup menggoreskan tanda tangan pada layar HP/Tablet mereka setelah memindai QR Code. Tanda tangan ini nantinya akan otomatis tertempel pada file Excel Daftar Hadir yang bisa diunduh.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 7 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">7. Bagaimana cara download PDF hasil rapat?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Pertama, Anda harus melakukan <strong>Generate Doc</strong> (ikon Word) terlebih dahulu. Setelah proses selesai dan status berubah menjadi "Final", akan muncul ikon PDF (merah) di sebelah tombol Generate. Klik ikon tersebut untuk mengunduh laporan dalam format PDF.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 8 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">8. Apa fungsi tombol "Buat Notulen Spreadsheet"?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Fitur ini digunakan untuk membuat matriks masalah yang detail (No, Uraian Masalah, Tindak Lanjut, PJ, dan Target). Sistem akan membuat file Google Sheet dari template standar RSUD. Isi spreadsheet ini nantinya akan otomatis disalin masuk ke dalam tabel Laporan Resmi (Word/Doc) saat Anda menekan tombol Generate.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 9 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">9. Apakah saya bisa melihat notulen yang dibuat oleh pengguna lain?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Sistem E-Notulen menerapkan kebijakan <strong>Privasi Data User</strong>. Setiap notulis (User) hanya memiliki akses penuh terhadap data rapat yang mereka buat sendiri. Anda tidak dapat melihat, mengedit, atau menghapus arsip notulen milik rekan kerja lain, begitu pula sebaliknya. Akses monitoring seluruh data hanya dimiliki oleh pengguna dengan hak akses <strong>ADMIN</strong>. (Namun, Anda tetap bisa melihat arsip rapat di mana Anda terdaftar hadir pada menu <em>Riwayat Kehadiran</em>).
+                    </p>
+                </div>
+            </div>
+
+             <!-- FAQ 10 -->
+             <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">10. Apakah aplikasi ini bisa dibuka di HP?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Tentu saja. E-Notulen didesain <em>Responsive</em> (menyesuaikan layar). Tampilan di HP akan otomatis berubah menjadi mode mobile card agar mudah dibaca. Sidebar menu akan tersembunyi di tombol hamburger agar tidak memenuhi layar kecil.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ 11 -->
+            <div class="faq-item glass-card rounded-xl overflow-hidden group">
+                <button onclick="toggleFaq(this)" class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
+                    <span class="font-bold text-white group-hover:text-cyan-300 transition">11. Bagaimana cara melihat materi rapat yang pernah saya ikuti sebagai peserta?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon text-blue-300 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-content bg-white/5 px-6">
+                    <p class="py-4 text-sm text-blue-100/80 leading-relaxed border-t border-white/10">
+                        Anda dapat masuk ke aplikasi menggunakan akun Google Anda, lalu buka menu <strong>"Riwayat Kehadiran"</strong> di sidebar sebelah kiri. Sistem akan secara otomatis mengumpulkan semua arsip rapat di mana Anda pernah tercatat hadir (berdasarkan kecocokan alamat Email). Dari menu tersebut, Anda dapat mengunduh dokumen Notulen (PDF) dan seluruh file lampirannya secara mandiri.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-8 text-center text-blue-200/60 text-xs relative z-10 border-t border-white/10">
+        <p>&copy; 2026 Bagian Administrasi dan Umum RSUD dr. R. Koesma Tuban</p>
+    </footer>
+
+    <!-- ================= MODALS & UI COMPONENTS ================= -->
+
+    <!-- Modal Login -->
+    <div id="modal-login" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-login')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-blue-50 p-8 border-b border-blue-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-right-to-bracket"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Login & Akses</h3>
+                        <p class="text-sm text-slate-500">Panduan masuk ke dalam sistem.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="flex gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm">1</span>
+                    <div>
+                        <h4 class="font-bold text-slate-800 mb-1">Akses URL</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">Buka aplikasi E-Notulen melalui browser (Chrome/Edge/Safari). Halaman login akan menampilkan logo RSUD dan tombol Google.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm">2</span>
+                    <div>
+                        <h4 class="font-bold text-slate-800 mb-1">Google One Tap</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">Klik tombol "Sign in with Google" atau tunggu popup muncul di pojok kanan atas. Pilih akun email instansi atau email pribadi yang terdaftar.</p>
+                    </div>
+                </div>
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                    <p class="text-xs text-amber-800 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i> Catatan: Jika akun Anda baru pertama kali login, status Anda adalah "USER". Hubungi Admin untuk upgrade akses.</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-login')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Jadwal -->
+    <div id="modal-jadwal" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-jadwal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-emerald-50 p-8 border-b border-emerald-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-plus"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Membuat Jadwal Rapat</h3>
+                        <p class="text-sm text-slate-500">Langkah awal memulai notulensi.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-6">
+                <p class="text-sm text-slate-600">Fitur ini digunakan untuk mendaftarkan rapat baru ke dalam sistem agar link absensi dapat dibuat.</p>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3 text-sm text-slate-700">
+                        <i class="fa-solid fa-check-circle text-emerald-500 mt-1"></i>
+                        <span><strong>Unit Pelaksana:</strong> Pilih unit kerja penyelenggara rapat. Jika tidak ada, pilih "Lainnya" dan ketik manual.</span>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-slate-700">
+                        <i class="fa-solid fa-check-circle text-emerald-500 mt-1"></i>
+                        <span><strong>Upload Undangan:</strong> Anda bisa mengunggah foto/PDF surat undangan sebagai arsip digital.</span>
+                    </li>
+                    <li class="flex items-start gap-3 text-sm text-slate-700">
+                        <i class="fa-solid fa-check-circle text-emerald-500 mt-1"></i>
+                        <span><strong>Otomatisasi Folder:</strong> Sistem otomatis membuat folder di Google Drive dengan format <code>YYYY-MM-DD [Nama Agenda]</code> untuk menyimpan semua file terkait rapat ini.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-jadwal')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Absensi -->
+    <div id="modal-absensi" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-absensi')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-indigo-50 p-8 border-b border-indigo-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-qrcode"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Sistem Absensi Digital</h3>
+                        <p class="text-sm text-slate-500">QR Code dan Tanda Tangan Online.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-slate-800 mb-2 text-sm"><i class="fa-solid fa-user-pen mr-2 text-indigo-500"></i>Untuk Peserta</h4>
+                        <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+                            <li>Scan QR Code yang diberikan notulis.</li>
+                            <li>Isi Nama Lengkap & Unit.</li>
+                            <li>Tanda tangan pada layar HP.</li>
+                            <li>Klik "Konfirmasi Kehadiran".</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-slate-800 mb-2 text-sm"><i class="fa-solid fa-desktop mr-2 text-indigo-500"></i>Untuk Notulis</h4>
+                        <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+                            <li>Buka menu "Arsip Notulen".</li>
+                            <li>Klik ikon QR Code <i class="fa-solid fa-qrcode text-slate-400"></i>.</li>
+                            <li>Tampilkan di layar proyektor.</li>
+                            <li>Klik ikon Users <i class="fa-solid fa-users text-green-600"></i> untuk cek siapa yang sudah hadir.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-absensi')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Notulen -->
+    <div id="modal-notulen" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-notulen')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-orange-50 p-8 border-b border-orange-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-orange-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-pen-nib"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Menulis Notulen</h3>
+                        <p class="text-sm text-slate-500">Fitur Matriks & Dokumentasi.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-4">
+                <p class="text-sm text-slate-600 mb-4">Sistem ini mendukung pencatatan notulen berbasis <strong>Matriks Masalah</strong> yang terintegrasi dengan Google Spreadsheet.</p>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2">Tombol "Buat Notulen Spreadsheet"</h4>
+                    <p class="text-xs text-slate-600">Tombol hijau ini akan otomatis membuat file Google Sheet baru dari template standar RSUD. Anda bisa mengisi kolom: No, Uraian Masalah, Tindak Lanjut, PJ, dan Target Waktu di sana.</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2">Dokumentasi</h4>
+                    <p class="text-xs text-slate-600">Anda dapat mengunggah foto kegiatan atau melampirkan link materi rapat. File akan otomatis tersimpan di folder Google Drive rapat tersebut.</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-notulen')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Output -->
+    <div id="modal-output" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-output')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-cyan-50 p-8 border-b border-cyan-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-file-export"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Laporan & Output</h3>
+                        <p class="text-sm text-slate-500">Generate dokumen otomatis.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="flex gap-4 items-start">
+                    <div class="w-10 h-10 rounded bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-file-word"></i></div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">Laporan Resmi (Google Doc)</h4>
+                        <p class="text-sm text-slate-600">Klik ikon <i class="fa-solid fa-file-word text-blue-800"></i> di daftar arsip. Sistem akan menggabungkan data rapat, daftar hadir, dan isi matriks spreadsheet menjadi satu dokumen laporan resmi yang siap cetak/TTD.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <div class="w-10 h-10 rounded bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-file-excel"></i></div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">Daftar Hadir (Excel)</h4>
+                        <p class="text-sm text-slate-600">Buka popup kehadiran, lalu klik tombol "Download Excel". File Excel akan berisi daftar hadir lengkap dengan <strong>Gambar Tanda Tangan</strong> yang tertempel rapi di kolomnya.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 font-medium">
+                    <i class="fa-brands fa-whatsapp mr-1"></i> Anda juga bisa membagikan hasil rapat langsung ke WhatsApp menggunakan tombol Broadcast.
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-output')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Admin -->
+    <div id="modal-admin" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-admin')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-slate-800 p-8 border-b border-slate-700 text-white">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-slate-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-user-shield"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold">Panel Admin</h3>
+                        <p class="text-sm text-slate-400">Fitur khusus pengelolaan sistem.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-4">
+                <p class="text-sm text-slate-600">Hanya user dengan role <strong>ADMIN</strong> yang dapat mengakses menu ini.</p>
+                <div class="border border-slate-200 rounded-lg divide-y divide-slate-100">
+                    <div class="p-3 flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-700">Manajemen User</span>
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">Edit Role / Blokir</span>
+                    </div>
+                    <div class="p-3 flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-700">Maintenance Mode</span>
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">Tutup Akses Publik</span>
+                    </div>
+                    <div class="p-3 flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-700">Hapus Data</span>
+                        <span class="text-xs bg-red-50 text-red-500 px-2 py-1 rounded">Delete Permanen</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-admin')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal History -->
+    <div id="modal-history" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-content w-full max-w-2xl rounded-3xl relative overflow-hidden animate-slide-up">
+            <button onclick="closeModal('modal-history')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition z-10"><i class="fa-solid fa-xmark"></i></button>
+            <div class="bg-rose-50 p-8 border-b border-rose-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Riwayat Kehadiran</h3>
+                        <p class="text-sm text-slate-500">Akses arsip khusus untuk peserta rapat.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 space-y-4">
+                <p class="text-sm text-slate-600 mb-4">Sebagai peserta biasa (meskipun bukan notulis/admin), Anda dapat melihat daftar semua rapat yang pernah Anda ikuti di aplikasi ini.</p>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-envelope-circle-check text-rose-500 mr-2"></i>Syarat Utama</h4>
+                    <p class="text-xs text-slate-600">Sistem mengenali Anda berdasarkan <strong>Email</strong>. Pastikan Anda selalu mengisi kolom Email (atau menggunakan fitur login/autofill Google) saat melakukan absensi digital agar riwayatnya otomatis masuk ke akun Anda.</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-download text-rose-500 mr-2"></i>Fitur Download Mandiri</h4>
+                    <p class="text-xs text-slate-600">Melalui menu "Riwayat Kehadiran", Anda dapat langsung mengunduh <strong>Laporan Resmi (PDF)</strong> jika sudah diselesaikan oleh notulis, atau mengunduh seluruh materi presentasi rapat dalam format <strong>ZIP</strong>.</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal('modal-history')" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition">Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= FITUR AI CHAT (NEW) ================= -->
+    
+    <!-- Floating Button AI -->
+    <button onclick="toggleAIChat()" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/40 hover:scale-110 hover:shadow-cyan-500/50 transition-all duration-300">
+        <i class="fa-solid fa-robot"></i>
+        <!-- Ping Indicator -->
+        <span class="absolute top-0 right-0 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500 border-2 border-white"></span>
+        </span>
+    </button>
+
+    <!-- Chat Window UI -->
+    <div id="ai-chat-window" class="fixed bottom-24 right-6 w-80 sm:w-96 max-w-[calc(100vw-3rem)] h-[500px] max-h-[calc(100vh-8rem)] bg-white/95 backdrop-blur-xl border border-white/40 shadow-2xl rounded-2xl flex flex-col z-50 hidden overflow-hidden transition-all duration-300 transform origin-bottom-right">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 to-blue-900 text-white p-4 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                    <i class="fa-solid fa-robot text-cyan-300"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm">Asisten AI E-Notulen</h4>
+                    <p class="text-[10px] text-blue-200 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Online</p>
+                </div>
+            </div>
+            <button onclick="toggleAIChat()" class="text-white/70 hover:text-white transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <!-- Chat Body (Messages) -->
+        <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+            <!-- Bot Welcome Message -->
+            <div class="flex gap-2 items-end">
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
+                    <i class="fa-solid fa-robot text-blue-600 text-xs"></i>
+                </div>
+                <div class="bg-white border border-slate-200 text-slate-700 text-sm p-3 rounded-2xl rounded-bl-sm shadow-sm max-w-[85%] ai-message-content">
+                    Halo! 👋 Saya Asisten AI E-Notulen RSUD. Ada yang bisa saya bantu terkait cara penggunaan aplikasi ini?
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator (Hidden by default) -->
+        <div id="ai-typing-indicator" class="px-4 pb-2 hidden">
+            <div class="flex gap-2 items-end">
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
+                    <i class="fa-solid fa-robot text-blue-600 text-xs"></i>
+                </div>
+                <div class="bg-white border border-slate-200 p-3 rounded-2xl rounded-bl-sm shadow-sm flex gap-1 items-center h-10">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="p-3 bg-white border-t border-slate-200 shrink-0">
+            <form id="ai-chat-form" onsubmit="handleAIChatSubmit(event)" class="relative flex items-center">
+                <input type="text" id="ai-chat-input" placeholder="Ketik pertanyaan Anda..." autocomplete="off" class="w-full bg-slate-100 text-sm text-slate-700 rounded-full pl-4 pr-12 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 border border-transparent focus:border-blue-300 transition-all">
+                <button type="submit" id="ai-chat-send-btn" class="absolute right-1 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+            <div class="text-center mt-2">
+                <p class="text-[9px] text-slate-400">Didukung oleh Google Gemini AI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ==========================================
+        // MENGGUNAKAN API_URL YANG SAMA DENGAN INDEX.HTML
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbz9g_X8LVXVFJv6ZBBA1erbHxDKP-i3rtsq5Z_urb6wFd92izi-XbTKXe9AVAwhOflpVA/exec"; 
+
+        // Fungsi Bawaan (Modals, Accordion, Observer)
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if(modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if(modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto'; 
+            }
+        }
+
+        function toggleFaq(btn) {
+            const allItems = document.querySelectorAll('.faq-item');
+            const parentItem = btn.parentElement;
+            allItems.forEach(item => { if(item !== parentItem) item.classList.remove('active'); });
+            parentItem.classList.toggle('active');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.animate-slide-up').forEach((el) => { observer.observe(el); });
+
+        // ==========================================
+        // FUNGSI AI CHAT (Terhubung ke gas.gs)
+        // ==========================================
+        const chatWindow = document.getElementById('ai-chat-window');
+        const chatMessages = document.getElementById('ai-chat-messages');
+        const chatInput = document.getElementById('ai-chat-input');
+        const typingIndicator = document.getElementById('ai-typing-indicator');
+        const sendBtn = document.getElementById('ai-chat-send-btn');
+
+        function toggleAIChat() {
+            if (chatWindow.classList.contains('hidden')) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('animate-chat-pop');
+                setTimeout(() => chatInput.focus(), 100);
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('animate-chat-pop');
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function appendMessage(sender, text) {
+            const wrapper = document.createElement('div');
+            
+            if (sender === 'user') {
+                wrapper.className = "flex gap-2 items-end justify-end";
+                wrapper.innerHTML = `
+                    <div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-sm shadow-sm max-w-[85%] break-words">
+                        ${text}
+                    </div>
+                `;
+            } else {
+                // Parse Markdown untuk respons AI menggunakan Marked.js
+                const parsedText = marked.parse(text);
+                wrapper.className = "flex gap-2 items-end";
+                wrapper.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
+                        <i class="fa-solid fa-robot text-blue-600 text-xs"></i>
+                    </div>
+                    <div class="bg-white border border-slate-200 text-slate-700 text-sm p-3 rounded-2xl rounded-bl-sm shadow-sm max-w-[85%] break-words ai-message-content">
+                        ${parsedText}
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        async function handleAIChatSubmit(e) {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Tambahkan pesan user ke UI
+            appendMessage('user', message);
+            chatInput.value = '';
+
+            // Tampilkan typing indicator
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+            sendBtn.disabled = true;
+
+            try {
+                // Kirim request ke backend (gas.gs) menggunakan action "ai_chat"
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'ai_chat', 
+                        prompt: message 
+                    }),
+                });
+                
+                const result = await response.json();
+                
+                typingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+
+                if (result.status === 'success') {
+                    appendMessage('ai', result.reply);
+                } else {
+                    appendMessage('ai', "Maaf, terjadi kesalahan: " + result.message);
+                }
+            } catch (err) {
+                typingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+                appendMessage('ai', "Maaf, gagal menghubungi server AI. Pastikan koneksi internet stabil.");
+                console.error("AI Chat Error:", err);
+            }
+        }
+    </script>
+</body>
+</html>

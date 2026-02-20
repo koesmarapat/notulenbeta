@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Penggunaan E-NOTULEN</title>
+<style>
+    /* Dasar - Style Presentasi Modern Dark Mode ala NotebookLLM */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        background-color: #0f172a; 
+        color: #f8fafc;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+    }
+
+    #mindmap-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    svg {
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+    }
+    
+    /* Warna Teks Node */
+    .markmap-node-text {
+        fill: #f8fafc;
+        font-weight: 500;
+        font-size: 16px;
+    }
+    
+    /* Garis Penghubung Dibuat Lebih Jelas */
+    .markmap-link {
+        stroke-width: 2.5px;
+        opacity: 0.9;
+    }
+
+    /* Toolbar Melayang */
+    .toolbar {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        gap: 10px;
+        background: #1e293b;
+        padding: 10px;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        border: 1px solid #334155;
+    }
+    
+    .toolbar button {
+        background: #334155;
+        border: none;
+        color: white;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 20px;
+    }
+    
+    .toolbar button:hover {
+        background: #0ea5e9;
+        transform: translateY(-2px);
+    }
+
+    /* Tombol Kembali */
+    .btn-back {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        background-color: rgba(30, 41, 59, 0.8);
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background-color: #3b82f6;
+        transform: translateY(-2px);
+    }
+
+    .btn-back svg {
+        width: 18px;
+        height: 18px;
+        background: none;
+    }
+
+    #loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #94a3b8;
+        font-weight: bold;
+        letter-spacing: 2px;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.15.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.15.4/dist/browser/index.min.js"></script>
+</head>
+<body>
+
+    <div id="loader">MENYUSUN CABANG PANDUAN...</div>
+    
+    <div id="mindmap-container">
+        <svg id="markmap"></svg>
+    </div>
+    
+    <a href="help.html" class="btn-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Kembali ke Bantuan
+    </a>
+
+    <div class="toolbar">
+        <button onclick="zoomOut()" title="Perkecil"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <button onclick="zoomIn()" title="Perbesar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+        <button onclick="fitView()" title="Reset Tampilan"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg></button>
+    </div>
+
+<script>
+    // --- KONTEN PANDUAN DENGAN SUB-NODE (GARIS KE RINCIAN) ---
+    const markdownContent = `
+# **E - NOTULEN**
+## **👤 BAGIAN 1: UNTUK NOTULIS**
+### **1. Membuat Jadwal Rapat**
+#### Klik menu **"Buat Jadwal"**
+#### Input Agenda, Unit, Tanggal & Waktu
+#### **Upload Undangan** asli (PDF/Gambar)
+#### *Otomatisasi Folder GDrive & GSheet*
+### **2. Memberikan Link Absensi**
+#### Buka menu **"Arsip Notulen"**
+#### Klik ikon **QR Code** rapat terkait
+#### Tampilkan di proyektor untuk peserta
+### **3. Menulis Notulensi Rapat**
+#### Buka menu **"Tulis Notulen"**
+#### Isi **Matriks Masalah** (Google Sheet)
+#### Upload foto **Dokumentasi Kegiatan**
+#### Klik **"Generate Doc"** untuk laporan final
+
+## **👥 BAGIAN 2: UNTUK PESERTA**
+### **1. Mengisi Absensi Digital**
+#### Scan **QR Code** di lokasi rapat
+#### Gunakan fitur **"Continue with Google"**
+#### Lakukan **Tanda Tangan Digital**
+#### Klik **"Konfirmasi Kehadiran"**
+### **2. (dapat) Melihat Hasil Rapat**
+#### **A. Melalui Link Share**
+##### Gunakan link yang dishare Notulis
+##### Klik menu **"Lihat Hasil Rapat"**
+#### **B. Melalui Website E-Notulen**
+##### Login ke website utama
+##### Masuk menu **"Riwayat Rapat Saya"**
+##### *Syarat: Email absen wajib benar*
+`;
+
+    // --- LOGIKA RENDER MARKMAP ---
+    const { Transformer } = window.markmap;
+    const { Markmap, loadCSS, loadJS } = window.markmap;
+
+    const transformer = new Transformer();
+    const { root, features } = transformer.transform(markdownContent);
+
+    if (features.styles) loadCSS(features.styles);
+    if (features.scripts) loadJS(features.scripts);
+
+    let mm;
+
+    function init() {
+        document.getElementById('loader').style.display = 'none';
+        
+        mm = Markmap.create('#markmap', {
+            autoFit: true,
+            fitRatio: 0.85,
+            duration: 600,
+            spacingHorizontal: 100,
+            spacingVertical: 10,
+            paddingX: 20,
+            initialExpandLevel: 0,
+            color: (node) => {
+                const depth = node.depth;
+                if (depth === 0) return '#22d3ee'; // Root tetap Cyan
+                
+                // --- LOGIKA IDENTIFIKASI CABANG UTAMA ---
+                let current = node;
+                let isNotulis = false;
+                let isPeserta = false;
+
+                // Telusuri ke atas hingga menemukan keyword di konten atau mencapai depth 1
+                while (current) {
+                    const content = current.content ? current.content.toUpperCase() : "";
+                    if (content.includes('NOTULIS')) {
+                        isNotulis = true;
+                        break;
+                    }
+                    if (content.includes('PESERTA')) {
+                        isPeserta = true;
+                        break;
+                    }
+                    // Berhenti jika sudah sampai di level tepat di bawah root
+                    if (current.depth === 1) break;
+                    // Penelusuran p (parent) di markmap object
+                    current = current.p; 
+                }
+
+                // Notulis: Biru Cerah (#38bdf8)
+                // Peserta: Kuning (#facc15)
+                if (isNotulis) return '#38bdf8';
+                if (isPeserta) return '#facc15';
+                
+                return '#94a3b8'; // Fallback Slate
+            }
+        }, root);
+    }
+
+    function zoomIn() { mm.rescale(1.2); }
+    function zoomOut() { mm.rescale(0.8); }
+    function fitView() { mm.fit(); }
+
+    window.onload = init;
+    window.addEventListener('resize', () => { if(mm) mm.fit(); });
+
+</script>
+</body>
+</html>
