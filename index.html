@@ -716,6 +716,11 @@
                                             <button type="button" id="btn-stop-record" onclick="stopAndProcessAll()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
                                                 <i class="fa-solid fa-wand-magic-sparkles"></i> Selesai & Analisa
                                             </button>
+
+                                            <!-- TAMBAHAN BARU: Tombol Generate dari Rekaman di Folder -->
+                                            <button type="button" id="btn-generate-folder" onclick="generateAINotulenFromFolder()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
+                                                <i class="fa-solid fa-file-excel"></i> Generate dari Folder
+                                            </button>
                                         </div>
                                     </div>
                                     
@@ -2760,6 +2765,51 @@
             }
             
             document.body.removeChild(textarea);
+        }
+
+        // TAMBAHAN BARU: Fungsi untuk meng-generate Spreadsheet Notulen AI dari file GDrive
+        function generateAINotulenFromFolder() {
+            const id = document.getElementById('form-id').value;
+            if (!id) {
+                Swal.fire('Data Belum Disimpan', 'Simpan jadwal terlebih dahulu dan pastikan folder Drive sudah terbentuk.', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Menganalisa Audio Folder...',
+                text: 'Sistem sedang membaca seluruh file audio di Google Drive dan memanggil AI. Mohon tunggu...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'generateAutoNotulenFromFolder',
+                    id: id,
+                    requesterEmail: currentUser.email
+                })
+            })
+            .then(res => res.json())
+            .then(resp => {
+                if(resp.status === 'success') {
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: 'Notulen AI berhasil dibuat dan ditambahkan ke daftar dokumentasi Anda.',
+                        icon: 'success',
+                        confirmButtonText: 'Buka Spreadsheet'
+                    }).then(() => {
+                        window.open(resp.url, '_blank');
+                        // Memuat ulang data agar link spreadsheet AI muncul di daftar dokumen
+                        loadData(currentPage);
+                    });
+                } else {
+                    Swal.fire('Gagal', resp.message, 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Error', 'Gagal memproses data.', 'error');
+            });
         }
 
         // ==========================================
