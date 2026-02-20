@@ -173,6 +173,7 @@
         // ==========================================
         // KONFIGURASI SISTEM
         // ==========================================
+        // TAUTAN TERBARU:
         const API_URL = "https://script.google.com/macros/s/AKfycbyXof0AkuY3hFKyCzSO9RPx6GOBRGD1SbqLGAMBU5eUZ71TV7zre74bL6bZ93YAJ3lVSw/exec"; 
         const CLIENT_ID = "404619775216-omjf6cn7j82kdnmev20rr9vp11hr7fka.apps.googleusercontent.com";
         const SUPER_ADMIN_EMAIL = "syamsul18782@gmail.com";
@@ -2516,11 +2517,11 @@
         let recordSeconds = 0;
         
         let chunkingIntervalTimer;
-        const CHUNK_DURATION_MS = 10 * 60 * 1000; // 10 Menit = 600.000 ms
+        const CHUNK_DURATION_MS = 10 * 60 * 1000; // 10 Menit
         
         let currentPartNumber = 1;
         let currentLocalChunks = [];
-        let uploadedDriveFileIds = []; // Menyimpan ID File di Google Drive dari semua part
+        let uploadedDriveFileIds = [];
         let isFinalStopRequested = false;
 
         async function requestWakeLock() {
@@ -2547,7 +2548,6 @@
 
         async function startBackgroundRecording() {
             try {
-                // Wajibkan user untuk mengisi form agenda dan tanggal
                 const agenda = document.getElementById('inp-agenda').value;
                 const tanggal = document.getElementById('inp-tanggal').value;
                 
@@ -2558,13 +2558,11 @@
 
                 mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 
-                // UI Setup
                 document.getElementById('btn-start-record').classList.add('hidden');
                 document.getElementById('btn-stop-record').classList.remove('hidden');
                 document.getElementById('ai-timer-display').classList.remove('hidden');
                 document.getElementById('ai-result-container').classList.add('hidden');
                 
-                // Reset States
                 recordSeconds = 0;
                 currentPartNumber = 1;
                 uploadedDriveFileIds = [];
@@ -2573,10 +2571,8 @@
                 requestWakeLock();
                 recordIntervalTimer = setInterval(updateTimer, 1000);
 
-                // Mulai Rekaman Sesi Pertama
                 startNewRecorderInstance();
                 
-                // Timer pemotong (chunking) rekaman
                 chunkingIntervalTimer = setInterval(handleChunkingTick, CHUNK_DURATION_MS);
 
             } catch(e) {
@@ -2584,7 +2580,6 @@
             }
         }
 
-        // Mulai instance rekaman baru (agar file webm memiliki header yg valid per part)
         function startNewRecorderInstance() {
             currentLocalChunks = [];
             const options = MediaRecorder.isTypeSupported('audio/webm') ? { mimeType: 'audio/webm' } : {};
@@ -2596,11 +2591,9 @@
             };
 
             mediaRecorder.onstop = () => {
-                // Saat distop, kumpulkan blob lalu upload
                 const blobToUpload = new Blob(currentLocalChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
                 const partToUpload = currentPartNumber; 
                 
-                // Lakukan upload di latar belakang
                 uploadChunkToDrive(blobToUpload, partToUpload, isFinalStopRequested);
             };
 
@@ -2609,13 +2602,8 @@
 
         function handleChunkingTick() {
             console.log(`[Auto-Sync] Memotong Part ${currentPartNumber}...`);
-            // Stop recorder (akan men-trigger upload file yang sekarang)
             mediaRecorder.stop();
-            
-            // Majukan part number
             currentPartNumber++;
-            
-            // Segera start record lagi agar tidak ada suara yang hilang (delay milisecond)
             setTimeout(() => { startNewRecorderInstance(); }, 50); 
         }
 
@@ -2653,7 +2641,6 @@
                             if(syncUI.innerHTML.includes('Tersimpan')) syncUI.classList.add('hidden'); 
                         }, 3000);
                         
-                        // Jika stop di-klik manual, eksekusi proses akhir AI
                         if (isFinal) {
                             executeFinalAiProcessing();
                         }
@@ -2681,14 +2668,13 @@
             clearInterval(chunkingIntervalTimer);
             releaseWakeLock();
 
-            // Mematikan lampu indikator
             document.getElementById('ai-timer-display').classList.add('hidden');
             document.getElementById('btn-stop-record').classList.add('hidden');
             document.getElementById('btn-start-record').classList.remove('hidden');
 
             if (mediaRecorder && mediaRecorder.state === 'recording') {
-                mediaRecorder.stop(); // memicu upload chunk terakhir
-                mediaStream.getTracks().forEach(track => track.stop()); // Matikan Mic Hardware
+                mediaRecorder.stop(); 
+                mediaStream.getTracks().forEach(track => track.stop()); 
             }
         }
 
@@ -2716,12 +2702,10 @@
             });
         }
 
-        // Menyimpan draf TSV untuk di-copy paste
         let rawAiJsonText = ""; 
         
         function renderAiResultTable(aiResponseText) {
             try {
-                // Bersihkan respon AI jika ada pembungkus markdown JSON
                 let cleanJsonStr = aiResponseText.replace(/```json/gi, '').replace(/```/gi, '').trim();
                 const aiData = JSON.parse(cleanJsonStr);
                 
