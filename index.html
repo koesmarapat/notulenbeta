@@ -2072,8 +2072,16 @@
             document.getElementById('form-id').value = item.id;
             
             // Sembunyikan field kirim undangan jika dalam mode edit / write 
-            // agar tidak bingung (email hanya dikirim saat create)
-            document.getElementById('section-invitees').classList.add('hidden');
+            // agar tidak bingung, tapi TAMPILKAN jika mode Edit Jadwal biasa
+            if(writingMode) {
+                document.getElementById('section-invitees').classList.add('hidden');
+            } else {
+                document.getElementById('section-invitees').classList.remove('hidden');
+                // Kosongkan list undangan untuk menghindari kirim ulang, 
+                // siap diisi jika ingin menambah undangan susulan.
+                selectedInvitees = [];
+                renderSelectedInvitees();
+            }
 
             const unitSel = document.getElementById('inp-unit');
             const unitGroup = document.getElementById('inp-unit-lainnya-group');
