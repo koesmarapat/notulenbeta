@@ -173,7 +173,6 @@
         // ==========================================
         // KONFIGURASI SISTEM
         // ==========================================
-        // TAUTAN TERBARU:
         const API_URL = "https://script.google.com/macros/s/AKfycbyXof0AkuY3hFKyCzSO9RPx6GOBRGD1SbqLGAMBU5eUZ71TV7zre74bL6bZ93YAJ3lVSw/exec"; 
         const CLIENT_ID = "404619775216-omjf6cn7j82kdnmev20rr9vp11hr7fka.apps.googleusercontent.com";
         const SUPER_ADMIN_EMAIL = "syamsul18782@gmail.com";
@@ -658,9 +657,16 @@
                                 </div>
                             </div>
                             
-                            <div class="mb-6">
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Agenda Rapat</label>
-                                <input type="text" name="agenda" id="inp-agenda" required class="glass-input w-full rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Contoh: Rapat Koordinasi">
+                            <!-- BAGIAN BARU: Agenda Rapat dan Tempat Rapat -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Agenda Rapat</label>
+                                    <input type="text" name="agenda" id="inp-agenda" required class="glass-input w-full rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Contoh: Rapat Koordinasi">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Tempat Rapat</label>
+                                    <input type="text" name="tempat" id="inp-tempat" required class="glass-input w-full rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Contoh: Ruang Rapat Gajah Mada">
+                                </div>
                             </div>
                             
                             <div class="mb-6">
@@ -2046,6 +2052,9 @@
             document.getElementById('inp-unit').disabled = false;
             document.getElementById('inp-unit-lainnya').disabled = false;
             document.getElementById('inp-unit-lainnya-group').classList.add('hidden');
+            // Bersihkan input Tempat Rapat
+            document.getElementById('inp-tempat').value = '';
+            
             document.getElementById('form-title').innerHTML = '<span class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-lg inline-flex mr-2"><i class="fa-solid fa-calendar-plus"></i></span> Jadwal Baru';
             document.getElementById('btn-submit-text').innerText = "Simpan Jadwal";
             document.getElementById('section-recording').classList.add('hidden');
@@ -2111,6 +2120,8 @@
             document.getElementById('inp-tanggal').value = d.toISOString().split('T')[0];
             document.getElementById('inp-waktu').value = item.waktu;
             document.getElementById('inp-agenda').value = item.agenda;
+            // Masukkan data ke input Tempat Rapat
+            document.getElementById('inp-tempat').value = item.tempat || "";
             document.getElementById('inp-peserta').value = item.peserta;
             
             try { 
@@ -2128,6 +2139,7 @@
             } else {
                  document.getElementById('form-title').innerHTML = '<span class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-lg inline-flex mr-2"><i class="fa-solid fa-pen"></i></span> Edit Jadwal';
                  document.getElementById('btn-submit-text').innerText = "Update Jadwal";
+                 document.getElementById('section-recording').classList.add('hidden');
             }
         }
         
@@ -2309,6 +2321,7 @@
                 tanggal: document.getElementById('inp-tanggal').value, 
                 waktu: document.getElementById('inp-waktu').value, 
                 agenda: document.getElementById('inp-agenda').value, 
+                tempat: document.getElementById('inp-tempat').value, 
                 peserta: document.getElementById('inp-peserta').value, 
                 pencatatNama: currentUser.name, 
                 pencatatEmail: currentUser.email,
@@ -2318,7 +2331,7 @@
                 existingFileUrl: document.getElementById('form-existing-file').value,
                 keptDokumentasi: document.getElementById('form-kept-docs').value,
                 newDokumentasi: newDocs,
-                invitees: selectedInvitees.map(i => i.email)
+                invitees: selectedInvitees.map(i => i.email) 
             };
             
             fetch(API_URL, { 
