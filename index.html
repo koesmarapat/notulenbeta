@@ -667,6 +667,25 @@
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Pimpinan Rapat</label>
                                 <input type="text" name="peserta" id="inp-peserta" class="glass-input w-full rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm" placeholder="Nama Pimpinan...">
                             </div>
+
+                            <!-- SEKSI TAMBAH DAFTAR UNDANGAN -->
+                            <div class="mb-6" id="section-invitees">
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2"><i class="fa-solid fa-users mr-1 text-blue-500"></i> Undang Peserta (Otomatis Kirim Email)</label>
+                                <div class="relative">
+                                    <div class="flex flex-wrap gap-2 p-2 min-h-[46px] bg-white border border-slate-200 rounded-xl cursor-text focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all" onclick="document.getElementById('search-invitee').focus()">
+                                        <div id="selected-invitees-tags" class="flex flex-wrap gap-2"></div>
+                                        <input type="text" id="search-invitee" placeholder="Ketik nama / email peserta..." class="flex-1 min-w-[200px] outline-none text-sm bg-transparent border-none py-1" oninput="handleInviteeSearch(this.value)" onfocus="showInviteeDropdown()">
+                                    </div>
+                                    
+                                    <!-- Dropdown Autocomplete -->
+                                    <div id="invitee-dropdown" class="hidden absolute z-50 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl">
+                                        <div class="p-4 text-center text-slate-400 text-sm" id="invitee-loading"><i class="fa-solid fa-circle-notch fa-spin text-blue-500 mr-2"></i> Memuat daftar kontak...</div>
+                                        <ul id="invitee-list" class="divide-y divide-slate-100"></ul>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-2"><i class="fa-solid fa-circle-info"></i> Peserta yang dipilih akan langsung menerima <b>Email Undangan Resmi beserta Link Absensi</b> sesaat setelah jadwal ini disimpan.</p>
+                            </div>
+                            <!-- END SEKSI TAMBAH DAFTAR UNDANGAN -->
                             
                             <div class="mb-6 bg-blue-50/50 p-5 rounded-xl border-2 border-dashed border-blue-200 transition hover:border-blue-400">
                                 <label class="block text-xs font-bold text-blue-800 uppercase mb-3"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Upload Undangan (PDF/Img)</label>
@@ -1055,6 +1074,10 @@
         let currentKeptDocs = [];
         let currentMeetingId = ""; 
         let searchTimeout;
+
+        // --- VARIABEL UNTUK FITUR UNDANGAN ---
+        let allContacts = [];
+        let selectedInvitees = [];
 
         function handleCredentialResponse(response) {
             const payload = JSON.parse(decodeURIComponent(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
@@ -2031,6 +2054,11 @@
             document.getElementById('empty-docs-msg').classList.remove('hidden');
             document.getElementById('new-docs-container').innerHTML = '';
             currentKeptDocs = [];
+            
+            // Tampilkan kembali field invitees dan kosongkan pilihan
+            document.getElementById('section-invitees').classList.remove('hidden');
+            selectedInvitees = [];
+            renderSelectedInvitees();
         }
         
         function startWriting(itemStr) { 
@@ -2043,6 +2071,10 @@
             document.getElementById('form-action').value = 'update';
             document.getElementById('form-id').value = item.id;
             
+            // Sembunyikan field kirim undangan jika dalam mode edit / write 
+            // agar tidak bingung (email hanya dikirim saat create)
+            document.getElementById('section-invitees').classList.add('hidden');
+
             const unitSel = document.getElementById('inp-unit');
             const unitGroup = document.getElementById('inp-unit-lainnya-group');
             const unitInput = document.getElementById('inp-unit-lainnya');
@@ -2115,6 +2147,106 @@
             `); 
         }
 
+        // ==========================================
+        // FUNGSI MULTI-SELECT UNDANGAN EMAIL
+        // ==========================================
+        function loadContacts() {
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getInviteeList' })
+            })
+            .then(r => r.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    allContacts = res.data;
+                    document.getElementById('invitee-loading').classList.add('hidden');
+                    renderInviteeList(document.getElementById('search-invitee').value);
+                }
+            });
+        }
+
+        function showInviteeDropdown() {
+            document.getElementById('invitee-dropdown').classList.remove('hidden');
+            if(allContacts.length === 0) {
+                document.getElementById('invitee-loading').classList.remove('hidden');
+                loadContacts();
+            } else {
+                renderInviteeList(document.getElementById('search-invitee').value);
+            }
+        }
+
+        function handleInviteeSearch(val) {
+            document.getElementById('invitee-dropdown').classList.remove('hidden');
+            renderInviteeList(val);
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('invitee-dropdown');
+            if(dropdown && !e.target.closest('#section-invitees')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function renderInviteeList(query = '') {
+            const ul = document.getElementById('invitee-list');
+            ul.innerHTML = '';
+            const q = query.toLowerCase();
+            
+            // Filter kontak (berdasarkan pencarian & sembunyikan yg sudah terpilih)
+            const filtered = allContacts.filter(c => 
+                (c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)) && 
+                !selectedInvitees.find(s => s.email === c.email)
+            );
+
+            if(filtered.length === 0) {
+                ul.innerHTML = '<li class="p-3 text-center text-sm text-slate-400">Tidak ada peserta yang cocok.</li>';
+                return;
+            }
+
+            filtered.forEach(c => {
+                const li = document.createElement('li');
+                li.className = "px-4 py-3 hover:bg-blue-50 cursor-pointer flex justify-between items-center transition group";
+                li.innerHTML = `
+                    <div>
+                        <p class="text-sm font-bold text-slate-700 group-hover:text-blue-700 transition">${c.name}</p>
+                        <p class="text-[10px] text-slate-500">${c.email} <span class="mx-1">•</span> <span class="bg-slate-100 px-1.5 rounded">${c.unit || '-'}</span></p>
+                    </div>
+                    <button type="button" class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition"><i class="fa-solid fa-plus text-xs"></i></button>
+                `;
+                li.onclick = () => addInvitee(c);
+                ul.appendChild(li);
+            });
+        }
+
+        function addInvitee(contact) {
+            selectedInvitees.push(contact);
+            document.getElementById('search-invitee').value = '';
+            renderSelectedInvitees();
+            document.getElementById('search-invitee').focus();
+            renderInviteeList(); 
+        }
+
+        function removeInvitee(email) {
+            selectedInvitees = selectedInvitees.filter(c => c.email !== email);
+            renderSelectedInvitees();
+            renderInviteeList(document.getElementById('search-invitee').value);
+        }
+
+        function renderSelectedInvitees() {
+            const container = document.getElementById('selected-invitees-tags');
+            container.innerHTML = '';
+            selectedInvitees.forEach(c => {
+                container.innerHTML += `
+                    <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-xs font-bold border border-blue-200 shadow-sm animate-fade-in">
+                        ${c.name}
+                        <button type="button" class="w-4 h-4 rounded-full bg-blue-200 hover:bg-red-500 hover:text-white flex items-center justify-center transition text-blue-600" onclick="removeInvitee('${c.email}')"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                    </span>
+                `;
+            });
+        }
+        // ==========================================
+
+
         const fileToBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -2177,7 +2309,8 @@
                 mimeType: mimeType,
                 existingFileUrl: document.getElementById('form-existing-file').value,
                 keptDokumentasi: document.getElementById('form-kept-docs').value,
-                newDokumentasi: newDocs
+                newDokumentasi: newDocs,
+                invitees: selectedInvitees.map(i => i.email) // Tambahkan data email yang diundang
             };
             
             fetch(API_URL, { 
