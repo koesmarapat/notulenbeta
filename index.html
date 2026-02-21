@@ -1074,7 +1074,7 @@
         let currentKeptDocs = [];
         let currentMeetingId = ""; 
         let searchTimeout;
-
+        
         // --- VARIABEL UNTUK FITUR UNDANGAN ---
         let allContacts = [];
         let selectedInvitees = [];
@@ -2310,7 +2310,7 @@
                 existingFileUrl: document.getElementById('form-existing-file').value,
                 keptDokumentasi: document.getElementById('form-kept-docs').value,
                 newDokumentasi: newDocs,
-                invitees: selectedInvitees.map(i => i.email) // Tambahkan data email yang diundang
+                invitees: selectedInvitees.map(i => i.email)
             };
             
             fetch(API_URL, { 
@@ -2648,6 +2648,201 @@
         }
 
         // =====================================================================
+        // FUNGSI ABSENSI (PORTAL PESERTA) - PERBAIKAN BUG LOADING
+        // =====================================================================
+        
+        function loadMeetingInfo(id) {
+            document.getElementById('absensi-loading').classList.remove('hidden');
+            document.getElementById('absensi-content').classList.add('hidden');
+            
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getMeetingInfo', id: id })
+            })
+            .then(res => res.json())
+            .then(resp => {
+                document.getElementById('absensi-loading').classList.add('hidden');
+                if (resp.status === 'success') {
+                    const data = resp.data;
+                    document.getElementById('abs-agenda').innerText = data.agenda;
+                    document.getElementById('abs-tanggal').innerText = data.tanggal;
+                    document.getElementById('abs-waktu').innerText = data.waktu;
+                    document.getElementById('abs-meeting-id').value = id;
+                    
+                    window.currentMeetingData = data;
+                    
+                    document.getElementById('absensi-content').classList.remove('hidden');
+                    showAbsensiMenu();
+                    
+                    if(document.getElementById("google-visitor-btn").innerHTML === "") {
+                        renderVisitorButton();
+                    }
+                } else {
+                    document.getElementById('absensi-loading').classList.remove('hidden');
+                    document.getElementById('absensi-loading').innerHTML = `<div class="text-red-500 font-bold bg-red-50 p-4 rounded-xl border border-red-200"><i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><br>Gagal memuat info rapat.<br><span class="text-xs font-normal">${resp.message}</span></div>`;
+                }
+            })
+            .catch(err => {
+                document.getElementById('absensi-loading').classList.remove('hidden');
+                document.getElementById('absensi-loading').innerHTML = `<div class="text-red-500 font-bold bg-red-50 p-4 rounded-xl border border-red-200"><i class="fa-solid fa-wifi text-2xl mb-2"></i><br>Gagal terhubung ke server. Pastikan URL Google Apps Script Anda (API_URL) sudah benar.</div>`;
+            });
+        }
+
+        function showAbsensiMenu() {
+            document.getElementById('absensi-menu').classList.remove('hidden');
+            document.getElementById('absensi-form-container').classList.add('hidden');
+            document.getElementById('absensi-result-container').classList.add('hidden');
+        }
+
+        function openAbsensiForm() {
+            document.getElementById('absensi-menu').classList.add('hidden');
+            document.getElementById('absensi-form-container').classList.remove('hidden');
+            setTimeout(() => { resizeCanvas(); }, 100);
+        }
+
+        function openResult() {
+            document.getElementById('absensi-menu').classList.add('hidden');
+            document.getElementById('absensi-result-container').classList.remove('hidden');
+            renderResultLinks();
+        }
+
+        function renderResultLinks() {
+            const container = document.getElementById('result-links-area');
+            const noMsg = document.getElementById('no-result-msg');
+            container.innerHTML = '';
+            
+            if(!window.currentMeetingData) return;
+            const data = window.currentMeetingData;
+            
+            let hasLinks = false;
+            
+            if(data.fileUndangan && data.fileUndangan.length > 5) {
+                hasLinks = true;
+                container.innerHTML += `
+                    <a href="${data.fileUndangan}" target="_blank" class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md transition group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-envelope-open-text"></i></div>
+                            <div class="text-left">
+                                <h4 class="font-bold text-slate-800 text-sm">Surat Undangan</h4>
+                                <p class="text-[10px] text-slate-500">Lihat dokumen undangan rapat</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-500 transition"></i>
+                    </a>`;
+            }
+            
+            if(data.linkFinal && data.linkFinal.length > 5) {
+                hasLinks = true;
+                let finalUrl = data.linkFinal;
+                try {
+                    if(data.linkFinal.startsWith('{')) {
+                        const finalObj = JSON.parse(data.linkFinal);
+                        finalUrl = finalObj.pdf;
+                    }
+                } catch(e) {}
+                
+                container.innerHTML += `
+                    <a href="${finalUrl}" target="_blank" class="flex items-center justify-between p-4 bg-white border border-emerald-200 rounded-xl hover:shadow-md transition group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-bold px-2 py-1 rounded-bl-lg">FINAL</div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-lg"><i class="fa-solid fa-file-pdf"></i></div>
+                            <div class="text-left">
+                                <h4 class="font-bold text-slate-800 text-sm">Notulen Laporan Resmi</h4>
+                                <p class="text-[10px] text-slate-500">Hasil keputusan & pembahasan</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-emerald-500 transition"></i>
+                    </a>`;
+            }
+            
+            let docs = [];
+            try { docs = JSON.parse(data.dokumentasi || "[]"); } catch(e) {}
+            
+            if(docs.length > 0) {
+                docs.forEach(d => {
+                    if(d.type === 'spreadsheet_matrix') return;
+                    
+                    hasLinks = true;
+                    let iconClass = "fa-file";
+                    let colorClass = "text-slate-500 bg-slate-100";
+                    const lowerUrl = (d.url || "").toLowerCase();
+                    
+                    if (lowerUrl.includes('spreadsheet')) { 
+                        iconClass = "fa-file-excel"; colorClass = "text-green-600 bg-green-50"; 
+                    } else if (lowerUrl.includes('document')) { 
+                        iconClass = "fa-file-word"; colorClass = "text-blue-600 bg-blue-50"; 
+                    } else if (lowerUrl.match(/\.(jpeg|jpg|gif|png)$/) || lowerUrl.includes('drive.google.com/file')) { 
+                        iconClass = "fa-file-image"; colorClass = "text-purple-600 bg-purple-50"; 
+                    }
+                    
+                    container.innerHTML += `
+                    <a href="${d.url}" target="_blank" class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md transition group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg ${colorClass} flex items-center justify-center text-lg"><i class="fa-solid ${iconClass}"></i></div>
+                            <div class="text-left overflow-hidden max-w-[200px]">
+                                <h4 class="font-bold text-slate-800 text-sm truncate">${d.name || d.desc || 'Lampiran'}</h4>
+                                <p class="text-[10px] text-slate-500">Dokumen / Materi</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-blue-500 transition text-xs"></i>
+                    </a>`;
+                });
+            }
+            
+            if(hasLinks) {
+                noMsg.classList.add('hidden');
+            } else {
+                noMsg.classList.remove('hidden');
+            }
+        }
+
+        function submitAbsensi(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            setBtnLoading(btn, true);
+            
+            if(signaturePad.isEmpty()) {
+                setBtnLoading(btn, false);
+                Swal.fire('Tanda Tangan Kosong', 'Silakan isi tanda tangan digital Anda terlebih dahulu.', 'warning');
+                return;
+            }
+            
+            let unit = document.getElementById('abs-unit').value;
+            if(unit === 'Lainnya') {
+                unit = document.getElementById('abs-unit-lainnya').value;
+            }
+            
+            const payload = {
+                action: 'submitAttendance',
+                meetingId: document.getElementById('abs-meeting-id').value,
+                nama: document.getElementById('abs-nama').value,
+                email: document.getElementById('abs-email').value,
+                phone: document.getElementById('abs-phone').value,
+                unit: unit,
+                signatureData: signaturePad.toDataURL('image/png')
+            };
+            
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(resp => {
+                setBtnLoading(btn, false);
+                if(resp.status === 'success') {
+                    document.getElementById('absensi-form-container').classList.add('hidden');
+                    document.getElementById('absensi-success').classList.remove('hidden');
+                } else {
+                    Swal.fire('Gagal', resp.message, 'error');
+                }
+            })
+            .catch(err => {
+                setBtnLoading(btn, false);
+                Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+            });
+        }
+
+        // =====================================================================
         // ENGINE AI BACKGROUND CHUNKING & SYNC
         // =====================================================================
         
@@ -2705,8 +2900,8 @@
                         echoCancellation: true,
                         noiseSuppression: true,
                         autoGainControl: true,
-                        channelCount: 1, // Mengubah dari stereo ke mono (menghemat 50% ukuran)
-                        sampleRate: 16000 // Menurunkan frekuensi sampling ke 16 kHz (sangat cukup untuk mendeteksi suara ucapan manusia oleh AI)
+                        channelCount: 1, // Mono (hemat ukuran file)
+                        sampleRate: 16000 // Frekuensi standar AI Voice
                     } 
                 });
                 // ----------------------------------------------
@@ -2747,10 +2942,8 @@
             currentLocalChunks = [];
             
             // --- OPTIMASI BITRATE MEDIA RECORDER ---
-            // Secara default browser merekam di 128 kbps (makan memori ~1MB/menit). 
-            // Kita turunkan menjadi 32 kbps. (akan memangkas ukuran menjadi sekitar ~240 KB/menit)
             const options = {
-                audioBitsPerSecond: 32000 
+                audioBitsPerSecond: 32000 // 32 kbps untuk audio lebih kecil namun cukup untuk AI
             };
             
             if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
