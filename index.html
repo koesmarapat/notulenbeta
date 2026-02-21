@@ -694,7 +694,7 @@
                                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 relative z-10">
                                         <div>
                                             <h3 class="text-white font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-cyan-400"></i> AI Auto-Notulen (Beta)</h3>
-                                            <p class="text-xs text-blue-200 mt-1">Sistem merekam dan menyinkronkan ke server secara otomatis. <span class="text-yellow-400 font-bold">Tekan 1x, JANGAN TUTUP HALAMAN INI.</span></p>
+                                            <p class="text-xs text-blue-200 mt-1">Sistem merekam dan menyinkronkan ke server secara otomatis. <span class="text-yellow-400 font-bold">Tekan 1x, rapat durasi panjang aman.</span></p>
                                         </div>
                                         <div class="flex flex-wrap items-center gap-3">
                                             
@@ -711,6 +711,10 @@
                                             <!-- Buttons -->
                                             <button type="button" id="btn-start-record" onclick="startBackgroundRecording()" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
                                                 <i class="fa-solid fa-microphone"></i> Mulai Rekam
+                                            </button>
+
+                                            <button type="button" id="btn-pause-record" onclick="togglePauseRecording()" class="hidden bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
+                                                <i class="fa-solid fa-pause" id="icon-pause"></i> <span id="text-pause">Jeda</span>
                                             </button>
 
                                             <button type="button" id="btn-stop-record" onclick="stopAndProcessAll()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-2">
@@ -2528,6 +2532,7 @@
         let currentLocalChunks = [];
         let uploadedDriveFileIds = [];
         let isFinalStopRequested = false;
+        let isRecordingPaused = false;
 
         async function requestWakeLock() {
             try { 
@@ -2575,6 +2580,7 @@
                 
                 document.getElementById('btn-start-record').classList.add('hidden');
                 document.getElementById('btn-stop-record').classList.remove('hidden');
+                document.getElementById('btn-pause-record').classList.remove('hidden');
                 document.getElementById('ai-timer-display').classList.remove('hidden');
                 document.getElementById('ai-result-container').classList.add('hidden');
                 
@@ -2582,6 +2588,15 @@
                 currentPartNumber = 1;
                 uploadedDriveFileIds = [];
                 isFinalStopRequested = false;
+                isRecordingPaused = false;
+                
+                // Reset Pause UI jika sebelumnya pernah digunakan
+                document.getElementById('text-pause').innerText = "Jeda";
+                document.getElementById('icon-pause').className = "fa-solid fa-pause";
+                document.getElementById('btn-pause-record').classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                document.getElementById('btn-pause-record').classList.add('bg-amber-500', 'hover:bg-amber-600');
+                document.getElementById('record-indicator').classList.add('animate-pulse', 'text-red-500');
+                document.getElementById('record-indicator').classList.remove('text-amber-500');
                 
                 requestWakeLock();
                 recordIntervalTimer = setInterval(updateTimer, 1000);
@@ -2626,6 +2641,45 @@
             };
 
             mediaRecorder.start();
+        }
+
+        function togglePauseRecording() {
+            if (!mediaRecorder) return;
+            
+            const btnText = document.getElementById('text-pause');
+            const btnIcon = document.getElementById('icon-pause');
+            const btnE = document.getElementById('btn-pause-record');
+            const indicator = document.getElementById('record-indicator');
+
+            if (isRecordingPaused) {
+                // LANJUT (RESUME)
+                mediaRecorder.resume();
+                isRecordingPaused = false;
+                
+                btnText.innerText = "Jeda";
+                btnIcon.className = "fa-solid fa-pause";
+                btnE.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                btnE.classList.add('bg-amber-500', 'hover:bg-amber-600');
+                indicator.classList.add('animate-pulse', 'text-red-500');
+                indicator.classList.remove('text-amber-500');
+                
+                recordIntervalTimer = setInterval(updateTimer, 1000);
+                chunkingIntervalTimer = setInterval(handleChunkingTick, CHUNK_DURATION_MS);
+            } else {
+                // JEDA (PAUSE)
+                mediaRecorder.pause();
+                isRecordingPaused = true;
+                
+                btnText.innerText = "Lanjut";
+                btnIcon.className = "fa-solid fa-play";
+                btnE.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+                btnE.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                indicator.classList.remove('animate-pulse', 'text-red-500');
+                indicator.classList.add('text-amber-500');
+                
+                clearInterval(recordIntervalTimer);
+                clearInterval(chunkingIntervalTimer);
+            }
         }
 
         function handleChunkingTick() {
@@ -2698,9 +2752,10 @@
 
             document.getElementById('ai-timer-display').classList.add('hidden');
             document.getElementById('btn-stop-record').classList.add('hidden');
+            document.getElementById('btn-pause-record').classList.add('hidden');
             document.getElementById('btn-start-record').classList.remove('hidden');
 
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
+            if (mediaRecorder && (mediaRecorder.state === 'recording' || mediaRecorder.state === 'paused')) {
                 mediaRecorder.stop(); 
                 mediaStream.getTracks().forEach(track => track.stop()); 
             }
